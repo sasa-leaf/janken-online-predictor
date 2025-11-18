@@ -1,0 +1,1 @@
+# janken-online-predictor

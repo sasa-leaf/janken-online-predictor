@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>5種じゃんけん LSTM AI</title>
+    <style>
+        /* --- 基本設定 --- */
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #f4f4f9;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            color: #333;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            box-sizing: border-box;
+            padding: 1vh 2vw;
+        }
+
+        /* --- ヘッダー --- */
+        header {
+            flex: 0 0 auto;
+            text-align: center;
+            margin-bottom: 1vh;
+            position: relative;
+        }
+        h1 {
+            margin: 0;
+            font-size: 3.5vh;
+            color: #2c3e50;
+        }
+        p.subtitle {
+            margin: 0;
+            font-size: 1.5vh;
+            color: #666;
+        }
+
+        /* --- メインコンテンツ --- */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: row;
+            gap: 2vw;
+            min-height: 0;
+        }
+
+        /* 左パネル */
+        .status-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            padding: 1vh 2vh;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        .status-text {
+            font-size: 3.5vh;
+            font-weight: bold;
+            margin-bottom: 2vh;
+            min-height: 1.2em;
+        }
+
+        .moves-display {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 1vh;
+            align-items: flex-start;
+        }
+        .move-box {
+            width: 45%;
+            position: relative;
+        }
+        .move-label-header { font-size: 1.8vh; color: #777; margin-bottom: 0.5vh;}
+        
+        /* 勝者マーク */
+        .winner-mark {
+            position: absolute;
+            top: -3vh;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #f1c40f;
+            color: #d35400;
+            font-weight: bold;
+            font-size: 1.8vh;
+            padding: 2px 10px;
+            border-radius: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            opacity: 0;
+            transition: opacity 0.3s, top 0.3s;
+            white-space: nowrap;
+        }
+        .winner-mark.show { opacity: 1; top: -4vh; }
+
+        .move-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 11vh;
+        }
+        .move-emoji { font-size: 6vh; line-height: 1.0; transition: transform 0.2s; }
+        .move-text-sub { font-size: 2.2vh; font-weight: bold; color: #555; margin-top: 0.5vh; }
+
+
+        /* 右パネル（チャート） */
+        .chart-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            padding: 2vh;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+        .chart-title { font-size: 2.2vh; margin-bottom: 1vh; }
+        
+        #chart-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .chart-img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        /* --- フッター --- */
+        footer {
+            flex: 0 0 auto;
+            padding-top: 2vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding-bottom: 8vh; 
+        }
+
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            gap: 1vw;
+            margin-bottom: 1.5vh;
+        }
+
+        .move-btn {
+            flex: 1;
+            padding: 1.5vh 0;
+            font-size: 2.2vh;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            color: white;
+            transition: transform 0.1s;
+            max-width: 18vw;
+        }
+        .move-btn:active { transform: scale(0.95); }
+        
+        .btn-gu { background-color: #e74c3c; }
+        .btn-choki { background-color: #f1c40f; color: #333; }
+        .btn-pa { background-color: #2ecc71; }
+        .btn-king { background-color: #9b59b6; }
+        .btn-slave { background-color: #34495e; }
+
+        /* メタ情報エリア */
+        .meta-info {
+            margin-top: 1vh;
+            font-size: 2.2vh;
+            color: #444;
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(255,255,255,0.8);
+            padding: 12px 30px;
+            border-radius: 40px;
+            flex-wrap: wrap;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        /* フッター内ボタンの共通スタイル */
+        .footer-btn {
+            padding: 1vh 2vh;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 2vh;
+            color: white;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        .footer-btn:hover { opacity: 0.9; }
+
+        .rule-btn { background-color: #3498db; }
+        .story-btn { background-color: #e67e22; }
+        .reset-btn { background-color: #7f8c8d; }
+
+
+        /* --- ロゴ (円形切り抜き) --- */
+        .logo-container {
+            position: fixed;
+            bottom: 15px;
+            right: 15px;
+            z-index: 100;
+            opacity: 0.9;
+            pointer-events: none;
+        }
+        .logo-img {
+            width: 100px;
+            height: 100px; /* 正円にするため高さも固定 */
+            object-fit: cover; /* 画像がつぶれないようにトリミング */
+            border-radius: 50%; /* 円形に切り抜き */
+            display: block;
+            background-color: white; /* 画像自体に透明部分があった場合の保険 */
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2); /* 軽く影をつけて浮き上がらせる */
+        }
+
+        /* --- モーダル (ポップアップ) --- */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 200;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            width: 80%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            position: relative;
+        }
+        .close-btn {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            position: absolute;
+            right: 20px;
+            top: 10px;
+        }
+        .close-btn:hover { color: #000; }
+        
+        .modal-h2 { margin-top: 0; color: #2c3e50; border-bottom: 2px solid #eee; padding-bottom: 10px;}
+        .rule-list li { margin-bottom: 8px; font-size: 1.8vh; }
+
+        /* スマホ縦持ち用レスポンシブ */
+        @media (max-aspect-ratio: 1/1) {
+            .main-content { flex-direction: column; }
+            .status-text { font-size: 3vh; margin-bottom: 1vh; }
+            .move-emoji { font-size: 5vh; }
+            .logo-img { width: 70px; height: 70px; }
+            footer { padding-bottom: 10vh; } 
+            .modal-content { width: 90%; padding: 20px; }
+            .meta-info { font-size: 2vh; padding: 10px 15px; gap: 10px; }
+            .footer-btn { font-size: 1.8vh; padding: 0.8vh 1.5vh; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>👑 5種じゃんけん vs LSTM AI</h1>
+            <p class="subtitle">AIはあなたの癖を学習して強くなります</p>
+        </header>
+
+        <div class="main-content">
+            <div class="status-panel">
+                <div id="status" class="status-text">Ready?</div>
+                
+                <div class="moves-display">
+                    <div class="move-box">
+                        <div id="user-win-mark" class="winner-mark">🏆 WIN!</div>
+                        <div class="move-label-header">あなた</div>
+                        <div id="user-move" class="move-content">
+                            <div class="move-emoji">-</div>
+                            <div class="move-text-sub"></div>
+                        </div>
+                    </div>
+
+                    <div style="font-size: 4vh; align-self: center; color:#ccc; padding-top: 2vh;">VS</div>
+
+                    <div class="move-box">
+                        <div id="ai-win-mark" class="winner-mark">🏆 WIN!</div>
+                        <div class="move-label-header">AI</div>
+                        <div id="ai-move" class="move-content">
+                            <div class="move-emoji">-</div>
+                            <div class="move-text-sub"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-panel">
+                <div class="chart-title">🧠 AIが予測したあなたの手の確率</div>
+                <div id="chart-container">
+                    <p style="color: #aaa; font-size: 2vh;">(データ収集中...)</p>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <div class="btn-group">
+                <button class="move-btn btn-gu" onclick="play(0)">👊<br>グー</button>
+                <button class="move-btn btn-choki" onclick="play(1)">✌️<br>チョキ</button>
+                <button class="move-btn btn-pa" onclick="play(2)">🖐<br>パー</button>
+                <button class="move-btn btn-king" onclick="play(3)">👑<br>王様</button>
+                <button class="move-btn btn-slave" onclick="play(4)">🧑‍🌾<br>農民</button>
+            </div>
+            
+            <div class="meta-info">
+                <span>対戦数: <span id="game-count">0</span></span>
+                <span>勝率: <span id="win-rate">0.0</span>%</span>
+                
+                <button class="footer-btn rule-btn" onclick="openModal('rule-modal')">📖 ルール</button>
+                <button class="footer-btn story-btn" onclick="openModal('dev-modal')">🤫 ヒント</button>
+                <button class="footer-btn reset-btn" onclick="resetGame()">🔄 リセット</button>
+            </div>
+        </footer>
+    </div>
+
+    <div class="logo-container">
+        <img src="/static/logo.png" alt="Club Logo" class="logo-img" onerror="this.style.display='none'">
+    </div>
+
+    <div id="rule-modal" class="modal" onclick="closeModalOutside(event, 'rule-modal')">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('rule-modal')">&times;</span>
+            <h2 class="modal-h2">📖 5種じゃんけんのルール</h2>
+            <ul class="rule-list">
+                <li><b>👑 王様</b> は、グー・チョキ・パーすべてに勝ちます。</li>
+                <li><b>🧑‍🌾 農民</b> は、王様にだけ勝ちます（下克上！）。</li>
+                <li><b>🧑‍🌾 農民</b> は、グー・チョキ・パーには負けます。</li>
+                <li>グー・チョキ・パー同士は通常のルールです。</li>
+            </ul>
+            <div style="text-align: center; margin-top: 20px; background: #f9f9f9; padding: 10px; border-radius: 8px;">
+                <p style="margin:0; font-weight:bold;">最強手: 王様</p>
+                <p style="margin:5px 0 0 0; font-size: 0.9em;">しかし、使いすぎると農民に狙われます...</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="dev-modal" class="modal" onclick="closeModalOutside(event, 'dev-modal')">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('dev-modal')">&times;</span>
+            <h2 class="modal-h2">🤫 ヒントとウラ話</h2>
+            <p>このAIは <b>LSTM (Long Short-Term Memory)</b> というニューラルネットワークを使用しています。</p>
+            <p>AIはあなたの「過去の手のパターン」を記憶し、常に「次に来る手」を予測して、それに勝てる手を選んでいます。</p>
+            
+            <div style="background-color: #eafaf1; border-left: 5px solid #2ecc71; padding: 15px; margin: 20px 0;">
+                <h3 style="margin-top:0; color:#27ae60;">🧪 実験してみてください</h3>
+                <ul>
+                    <li><b>「グー 👊 → チョキ ✌️ → パー 🖐」</b> の順番で、同じパターンを何度も繰り返し出してみてください。最初は負けたり勝ったりしますが、何周かすると…？</li>
+                    <li><b>「王様 👑」</b> を多用すると、AIの予測はどうなるでしょうか？</li>
+                    <li>ある時から急に同じ手を出し続けると，AIの予測はどう変わっていくでしょうか？</li>
+                    <li>逆に、ランダムに手を出し続けると、AIはなかなか学習できません。</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const EMOJI_MAP = {
+            'グー': '👊',
+            'チョキ': '✌️',
+            'パー': '🖐',
+            '王様': '👑',
+            '奴隷': '🧑‍🌾',
+            '農民': '🧑‍🌾' 
+        };
+        
+        // 勝率計算用の変数
+        let localWinCount = 0;
+        let localLoseCount = 0; // 負け数をカウントする変数を追加
+
+        async function play(moveIndex) {
+            try {
+                const response = await fetch('/play', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ move: moveIndex })
+                });
+                const data = await response.json();
+
+                let userMoveName = data.user_move_name;
+                let aiMoveName = data.ai_move_name;
+                if(userMoveName === '奴隷') userMoveName = '農民';
+                if(aiMoveName === '奴隷') aiMoveName = '農民';
+
+                const userEmoji = EMOJI_MAP[data.user_move_name] || '❓';
+                const aiEmoji = EMOJI_MAP[data.ai_move_name] || '❓';
+
+                document.getElementById('user-move').innerHTML = 
+                    `<div class="move-emoji">${userEmoji}</div><div class="move-text-sub">${userMoveName}</div>`;
+                document.getElementById('ai-move').innerHTML = 
+                    `<div class="move-emoji">${aiEmoji}</div><div class="move-text-sub">${aiMoveName}</div>`;
+
+                const resultText = data.result;
+                const statusElem = document.getElementById('status');
+                statusElem.innerText = resultText;
+
+                document.getElementById('user-win-mark').classList.remove('show');
+                document.getElementById('ai-win-mark').classList.remove('show');
+
+                // --- 勝敗カウントロジックの変更 ---
+                // あいこのときはカウントしない
+                if (resultText.includes("あなたの勝ち")) {
+                    statusElem.style.color = "#e74c3c";
+                    document.getElementById('user-win-mark').classList.add('show');
+                    localWinCount++;
+                } else if (resultText.includes("AIの勝ち") || resultText.includes("負け")) {
+                    statusElem.style.color = "#2980b9";
+                    document.getElementById('ai-win-mark').classList.add('show');
+                    localLoseCount++;
+                } else {
+                    statusElem.style.color = "#333";
+                    // あいこなのでカウントアップしない
+                }
+
+                // --- 勝率計算 (あいこを除外) ---
+                const validGames = localWinCount + localLoseCount;
+                let winRate = "0.0";
+                if (validGames > 0) {
+                    winRate = (localWinCount / validGames * 100).toFixed(1);
+                }
+                document.getElementById('win-rate').innerText = winRate;
+                
+                // 総対戦数はサーバー側の値を表示（あいこも含む）
+                document.getElementById('game-count').innerText = data.games_count;
+
+                const chartContainer = document.getElementById('chart-container');
+                if (data.games_count <= 5) {
+                    const remaining = 6 - data.games_count;
+                    chartContainer.innerHTML = 
+                        `<div style="text-align:center; color:#aaa;">
+                            <p style="font-size:3vh;">📉 データ収集中...</p>
+                            <p>AIの予測開始まであと <b>${remaining}</b> 回</p>
+                        </div>`;
+                } else if (data.chart_img) {
+                    chartContainer.innerHTML = 
+                        `<img src="data:image/png;base64,${data.chart_img}" class="chart-img" />`;
+                }
+
+            } catch (e) {
+                console.error("通信エラー:", e);
+            }
+        }
+
+        async function resetGame() {
+            if(confirm("学習データと戦績をリセットしますか？")){
+                await fetch('/reset', { method: 'POST' });
+                localWinCount = 0;
+                localLoseCount = 0;
+                location.reload();
+            }
+        }
+
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        function closeModalOutside(event, id) {
+            if (event.target.classList.contains('modal')) {
+                closeModal(id);
+            }
+        }
+    </script>
+</body>
+</html>

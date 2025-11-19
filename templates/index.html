@@ -186,28 +186,51 @@
         /* メタ情報エリア */
         .meta-info {
             margin-top: 1vh;
-            font-size: 2.2vh;
+            font-size: 2vh;
             color: #444;
             display: flex;
-            gap: 20px;
+            gap: 1vw;
             align-items: center;
             justify-content: center;
             background-color: rgba(255,255,255,0.8);
-            padding: 12px 30px;
+            padding: 12px 20px;
             border-radius: 40px;
             flex-wrap: wrap;
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
+        
+        /* ★勝率を目立たせるスタイル */
+        .win-rate-display {
+            background-color: #f0f0ff; /* 淡い背景色 */
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            color: #4a00e0; /* 濃い紫色 */
+            border: 2px solid #ccc;
+        }
+        #win-rate {
+            font-size: 3vh; /* フォントサイズを大きく */
+            margin-left: 5px;
+            font-family: monospace; /* 数字を見やすく */
+        }
+        /* 勝率部分のテキストを小さく */
+        .win-rate-display span:first-child {
+            font-size: 1.8vh; 
+            font-weight: normal;
+            display: block;
+            line-height: 1;
+        }
+
 
         /* フッター内ボタンの共通スタイル */
         .footer-btn {
             padding: 1vh 2vh;
             border: none;
-            border-radius: 8px;
+            border-radius: 20px;
             cursor: pointer;
             font-size: 2vh;
             color: white;
-            font-weight: bold;
+            font-weight: normal;
             transition: background-color 0.2s;
         }
         .footer-btn:hover { opacity: 0.9; }
@@ -228,12 +251,12 @@
         }
         .logo-img {
             width: 100px;
-            height: 100px; /* 正円にするため高さも固定 */
-            object-fit: cover; /* 画像がつぶれないようにトリミング */
-            border-radius: 50%; /* 円形に切り抜き */
+            height: 100px;
+            object-fit: cover;
+            border-radius: 50%;
             display: block;
-            background-color: white; /* 画像自体に透明部分があった場合の保険 */
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2); /* 軽く影をつけて浮き上がらせる */
+            background-color: white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
 
         /* --- モーダル (ポップアップ) --- */
@@ -277,16 +300,35 @@
         .modal-h2 { margin-top: 0; color: #2c3e50; border-bottom: 2px solid #eee; padding-bottom: 10px;}
         .rule-list li { margin-bottom: 8px; font-size: 1.8vh; }
 
-        /* スマホ縦持ち用レスポンシブ */
+        /* ★グラフ重なり防止とレスポンシブデザインの修正 */
         @media (max-aspect-ratio: 1/1) {
-            .main-content { flex-direction: column; }
+            .container {
+                /* スマホ表示時、paddingを微調整 */
+                padding: 1vh 4vw;
+            }
+            .main-content { 
+                flex-direction: column; 
+                /* ★縦長画面でのスペース配分を明確にする */
+                /* メインコンテンツ全体で残りの高さを利用 */
+            }
+            
+            /* ★左パネル (勝敗ステータス) に占有高さを指定 */
+            .status-panel {
+                flex: 0 0 15vh; /* 画面高さの約15%を確保 */
+                margin-bottom: 1vh;
+            }
+            
+            /* ★右パネル (チャート) に残りの高さを与える */
+            .chart-panel {
+                flex: 1; 
+                min-height: 0; /* グラフが縮小可能になる */
+            }
+            
+            /* その他のスマホ向け調整 */
             .status-text { font-size: 3vh; margin-bottom: 1vh; }
             .move-emoji { font-size: 5vh; }
             .logo-img { width: 70px; height: 70px; }
-            footer { padding-bottom: 10vh; } 
-            .modal-content { width: 90%; padding: 20px; }
-            .meta-info { font-size: 2vh; padding: 10px 15px; gap: 10px; }
-            .footer-btn { font-size: 1.8vh; padding: 0.8vh 1.5vh; }
+            footer { padding-bottom: 2vh; } 
         }
     </style>
 </head>
@@ -343,12 +385,19 @@
             </div>
             
             <div class="meta-info">
-                <span>対戦数: <span id="game-count">0</span></span>
-                <span>勝率: <span id="win-rate">0.0</span>%</span>
+                <span class="win-rate-display">
+                    <span>あなたの勝率</span>
+                    <span id="win-rate">-</span>%
+                </span>
                 
-                <button class="footer-btn rule-btn" onclick="openModal('rule-modal')">📖 ルール</button>
-                <button class="footer-btn story-btn" onclick="openModal('dev-modal')">🤫 ヒント</button>
-                <button class="footer-btn reset-btn" onclick="resetGame()">🔄 リセット</button>
+                <span class="win-rate-display">
+                    <span>対戦数</span>
+                    <span id="game-count">0</span>
+                </span>
+                
+                <button class="footer-btn rule-btn" onclick="openModal('rule-modal')">📖<br>ルール</button>
+                <button class="footer-btn story-btn" onclick="openModal('dev-modal')">🤫<br>ヒント</button>
+                <button class="footer-btn reset-btn" onclick="resetGame()">リセット</button>
             </div>
         </footer>
     </div>
@@ -378,8 +427,8 @@
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal('dev-modal')">&times;</span>
             <h2 class="modal-h2">🤫 ヒントとウラ話</h2>
-            <p>このAIは <b>LSTM (Long Short-Term Memory)</b> というニューラルネットワークを使用しています。</p>
-            <p>AIはあなたの「過去の手のパターン」を記憶し、常に「次に来る手」を予測して、それに勝てる手を選んでいます。</p>
+            <p>このAIは <b>LSTM (Long Short-Term Memory)</b> という手法を使用しています。</p>
+            <p>AIはあなたの「過去の手のパターン」を記憶し、次に来る手を予測して、それに勝てる手を選んでいます。</p>
             
             <div style="background-color: #eafaf1; border-left: 5px solid #2ecc71; padding: 15px; margin: 20px 0;">
                 <h3 style="margin-top:0; color:#27ae60;">🧪 実験してみてください</h3>
@@ -399,13 +448,11 @@
             'チョキ': '✌️',
             'パー': '🖐',
             '王様': '👑',
-            '奴隷': '🧑‍🌾',
             '農民': '🧑‍🌾' 
         };
         
-        // 勝率計算用の変数
         let localWinCount = 0;
-        let localLoseCount = 0; // 負け数をカウントする変数を追加
+        let localLoseCount = 0;
 
         async function play(moveIndex) {
             try {
@@ -418,8 +465,6 @@
 
                 let userMoveName = data.user_move_name;
                 let aiMoveName = data.ai_move_name;
-                if(userMoveName === '奴隷') userMoveName = '農民';
-                if(aiMoveName === '奴隷') aiMoveName = '農民';
 
                 const userEmoji = EMOJI_MAP[data.user_move_name] || '❓';
                 const aiEmoji = EMOJI_MAP[data.ai_move_name] || '❓';
@@ -436,8 +481,6 @@
                 document.getElementById('user-win-mark').classList.remove('show');
                 document.getElementById('ai-win-mark').classList.remove('show');
 
-                // --- 勝敗カウントロジックの変更 ---
-                // あいこのときはカウントしない
                 if (resultText.includes("あなたの勝ち")) {
                     statusElem.style.color = "#e74c3c";
                     document.getElementById('user-win-mark').classList.add('show');
@@ -448,10 +491,9 @@
                     localLoseCount++;
                 } else {
                     statusElem.style.color = "#333";
-                    // あいこなのでカウントアップしない
                 }
 
-                // --- 勝率計算 (あいこを除外) ---
+                // 勝率計算 (あいこを除外)
                 const validGames = localWinCount + localLoseCount;
                 let winRate = "0.0";
                 if (validGames > 0) {
@@ -459,7 +501,6 @@
                 }
                 document.getElementById('win-rate').innerText = winRate;
                 
-                // 総対戦数はサーバー側の値を表示（あいこも含む）
                 document.getElementById('game-count').innerText = data.games_count;
 
                 const chartContainer = document.getElementById('chart-container');

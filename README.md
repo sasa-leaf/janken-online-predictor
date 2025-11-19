@@ -36,11 +36,9 @@
    `.env` ファイルを作成し、以下のように設定してください（プロジェクトルートに配置）
 
    ```
-   MODEL_PATH=models/mnist_cnn.h5
    NGROK_TOKEN=あなたのngrokトークン
    ```
 
-   - `MODEL_PATH` : モデル保存先（デフォルト: `models/mnist_cnn.h5`）
    - `NGROK_TOKEN` : ngrokの認証トークン
 
 3. **サーバー起動**

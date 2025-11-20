@@ -332,6 +332,7 @@
         }
     </style>
 </head>
+
 <body>
 
     <div class="container">
@@ -412,14 +413,10 @@
             <h2 class="modal-h2">📖 5種じゃんけんのルール</h2>
             <ul class="rule-list">
                 <li><b>👑 王様</b> は、グー・チョキ・パーすべてに勝ちます。</li>
-                <li><b>🧑‍🌾 農民</b> は、王様にだけ勝ちます（下克上！）。</li>
+                <li><b>🧑‍🌾 農民</b> は、王様にだけ勝ちます。</li>
                 <li><b>🧑‍🌾 農民</b> は、グー・チョキ・パーには負けます。</li>
                 <li>グー・チョキ・パー同士は通常のルールです。</li>
             </ul>
-            <div style="text-align: center; margin-top: 20px; background: #f9f9f9; padding: 10px; border-radius: 8px;">
-                <p style="margin:0; font-weight:bold;">最強手: 王様</p>
-                <p style="margin:5px 0 0 0; font-size: 0.9em;">しかし、使いすぎると農民に狙われます...</p>
-            </div>
         </div>
     </div>
 
@@ -427,14 +424,13 @@
         <div class="modal-content">
             <span class="close-btn" onclick="closeModal('dev-modal')">&times;</span>
             <h2 class="modal-h2">🤫 ヒントとウラ話</h2>
-            <p>このAIは <b>LSTM (Long Short-Term Memory)</b> という手法を使用しています。</p>
             <p>AIはあなたの「過去の手のパターン」を記憶し、次に来る手を予測して、それに勝てる手を選んでいます。</p>
             
             <div style="background-color: #eafaf1; border-left: 5px solid #2ecc71; padding: 15px; margin: 20px 0;">
                 <h3 style="margin-top:0; color:#27ae60;">🧪 実験してみてください</h3>
                 <ul>
-                    <li><b>「グー 👊 → チョキ ✌️ → パー 🖐」</b> の順番で、同じパターンを何度も繰り返し出してみてください。最初は負けたり勝ったりしますが、何周かすると…？</li>
-                    <li><b>「王様 👑」</b> を多用すると、AIの予測はどうなるでしょうか？</li>
+                    <li><b>グー 👊 → チョキ ✌️ → パー 🖐</b> の順番で、同じパターンを何度も繰り返し出してみてください。最初は負けたり勝ったりしますが、何周かすると…？</li>
+                    <li><b>王様 👑</b> を何度も出し続けると、AIの出す手はどうなるでしょうか？</li>
                     <li>ある時から急に同じ手を出し続けると，AIの予測はどう変わっていくでしょうか？</li>
                     <li>逆に、ランダムに手を出し続けると、AIはなかなか学習できません。</li>
                 </ul>
@@ -544,5 +540,55 @@
             }
         }
     </script>
+    <script>
+    // 初回自動表示
+    window.onload = function() {
+        openModal('rule-modal');
+    };
+
+    // 50回ごとの自動モーダル
+    function checkMilestone() {
+        const count = parseInt(document.getElementById("game-count").textContent);
+        if (count > 0 && count % 50 === 0) {
+            document.getElementById("milestone-win-rate").textContent =
+                document.getElementById("win-rate").textContent;
+            document.getElementById("milestone-count").textContent = count;
+            openModal("milestone-modal");
+        }
+    }
+
+    // play() を必ず修正して、最後に checkMilestone() を追加してください
+    const originalPlay = play;
+    play = function(x) {
+        originalPlay(x);
+        checkMilestone();
+    };
+
+    // リセット時にもルールタブを自動表示
+    const originalReset = resetGame;
+    resetGame = function() {
+        originalReset();
+        openModal('rule-modal');
+    };
+</script>
+
+<!-- 50回ごとの自動ポップアップ -->
+<div id="milestone-modal" class="modal" onclick="closeModalOutside(event, 'milestone-modal')">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeModal('milestone-modal')">&times;</span>
+        <h2 class="modal-h2">🎉 50回プレイ達成！</h2>
+        <p>ここまでの成績はこちら：</p>
+
+        <ul style="font-size:2vh; line-height:1.8;">
+            <li><b>勝率：</b> <span id="milestone-win-rate">-</span>%</li>
+            <li><b>対戦数：</b> <span id="milestone-count">0</span></li>
+        </ul>
+
+        <button class="footer-btn reset-btn" onclick="resetGame()" style="margin-top:20px;">
+            🔄 リセット
+        </button>
+    </div>
+</div>
+
 </body>
 </html>

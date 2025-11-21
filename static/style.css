@@ -159,8 +159,9 @@ footer {
 
 .move-btn {
     flex: 1;
-    padding: 1.5vh 0;
-    font-size: 2.2vh;
+    padding: 1vh 0;
+    font-size: 5vh;
+    line-height: 1.1;
     border: none;
     border-radius: 10px;
     cursor: pointer;
@@ -168,13 +169,20 @@ footer {
     transition: transform 0.1s;
     max-width: 18vw;
 }
+
+/* ボタン内の文字（spanタグ）を小さくする設定 */
+.move-btn span {
+    font-size: 1.8vh;
+    display: block;
+    font-weight: bold;
+}
 .move-btn:active { transform: scale(0.95); }
 
 .btn-gu { background-color: #e74c3c; }
 .btn-choki { background-color: #f1c40f; color: #333; }
 .btn-pa { background-color: #2ecc71; }
 .btn-king { background-color: #9b59b6; }
-.btn-slave { background-color: #34495e; }
+.btn-commoner { background-color: #34495e; }
 
 /* メタ情報エリア */
 .meta-info {
@@ -194,17 +202,17 @@ footer {
 
 /* ★勝率を目立たせるスタイル */
 .win-rate-display {
-    background-color: #f0f0ff; /* 淡い背景色 */
+    background-color: #f0f0ff;
     padding: 8px 15px;
     border-radius: 20px;
     font-weight: bold;
-    color: #4a00e0; /* 濃い紫色 */
+    color: #4a00e0;
     border: 2px solid #ccc;
 }
 #win-rate {
-    font-size: 3vh; /* フォントサイズを大きく */
+    font-size: 3vh;
     margin-left: 5px;
-    font-family: monospace; /* 数字を見やすく */
+    font-family: monospace;
 }
 /* 勝率部分のテキストを小さく */
 .win-rate-display span:first-child {
@@ -229,7 +237,6 @@ footer {
 .footer-btn:hover { opacity: 0.9; }
 
 .rule-btn { background-color: #3498db; }
-.story-btn { background-color: #e67e22; }
 .reset-btn { background-color: #7f8c8d; }
 
 
@@ -272,7 +279,7 @@ footer {
     padding: 30px;
     border-radius: 15px;
     width: 80%;
-    max-width: 600px;
+    max-width: 800px;
     max-height: 80vh;
     overflow-y: auto;
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
@@ -291,7 +298,35 @@ footer {
 .close-btn:hover { color: #000; }
 
 .modal-h2 { margin-top: 0; color: #2c3e50; border-bottom: 2px solid #eee; padding-bottom: 10px;}
-.rule-list li { margin-bottom: 8px; font-size: 1.8vh; }
+.rule-list li { margin-bottom: 8px; font-size: 2.5vh; }
+
+/* --- マイルストーンモーダル用 --- */
+.milestone-display {
+    margin: 4vh 0; /* 上下の余白を広くとる */
+}
+
+.milestone-label {
+    font-size: 2.2vh;
+    color: #666;
+    margin: 0 0 1vh 0;
+    font-weight: bold;
+}
+
+.milestone-value {
+    font-size: 10vh; /* ★文字サイズを特大にする */
+    font-weight: 800;
+    color: #e74c3c; /* 赤系の強調色 */
+    line-height: 1;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+}
+
+.milestone-unit {
+    font-size: 4vh; /* %記号は少し小さく */
+    color: #333;
+    font-weight: normal;
+    vertical-align: baseline;
+    margin-left: 0.5vw;
+}
 
 /* ★グラフ重なり防止とレスポンシブデザインの修正 */
 @media (max-aspect-ratio: 1/1) {

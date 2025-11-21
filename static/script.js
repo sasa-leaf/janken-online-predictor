@@ -118,16 +118,8 @@ function checkMilestone() {
 }
 
 // play() を修正して、最後に checkMilestone() を追加
-// (元の動作と同じく、既存のplay関数をラップしています)
 const originalPlay = play;
 play = function(x) {
     originalPlay(x);
     checkMilestone();
-};
-
-// リセット時にもルールタブを自動表示
-const originalReset = resetGame;
-resetGame = function() {
-    originalReset();
-    openModal('rule-modal');
 };

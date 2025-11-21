@@ -1,0 +1,325 @@
+/* --- 基本設定 --- */
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: #f4f4f9;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    color: #333;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    box-sizing: border-box;
+    padding: 1vh 2vw;
+}
+
+/* --- ヘッダー --- */
+header {
+    flex: 0 0 auto;
+    text-align: center;
+    margin-bottom: 1vh;
+    position: relative;
+}
+h1 {
+    margin: 0;
+    font-size: 3.5vh;
+    color: #2c3e50;
+}
+p.subtitle {
+    margin: 0;
+    font-size: 1.5vh;
+    color: #666;
+}
+
+/* --- メインコンテンツ --- */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: row;
+    gap: 2vw;
+    min-height: 0;
+}
+
+/* 左パネル */
+.status-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    padding: 1vh 2vh;
+    text-align: center;
+    position: relative;
+    z-index: 10;
+}
+
+.status-text {
+    font-size: 3.5vh;
+    font-weight: bold;
+    margin-bottom: 2vh;
+    min-height: 1.2em;
+}
+
+.moves-display {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 1vh;
+    align-items: flex-start;
+}
+.move-box {
+    width: 45%;
+    position: relative;
+}
+.move-label-header { font-size: 1.8vh; color: #777; margin-bottom: 0.5vh;}
+
+/* 勝者マーク */
+.winner-mark {
+    position: absolute;
+    top: -3vh;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #f1c40f;
+    color: #d35400;
+    font-weight: bold;
+    font-size: 1.8vh;
+    padding: 2px 10px;
+    border-radius: 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    opacity: 0;
+    transition: opacity 0.3s, top 0.3s;
+    white-space: nowrap;
+}
+.winner-mark.show { opacity: 1; top: -4vh; }
+
+.move-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 11vh;
+}
+.move-emoji { font-size: 6vh; line-height: 1.0; transition: transform 0.2s; }
+.move-text-sub { font-size: 2.2vh; font-weight: bold; color: #555; margin-top: 0.5vh; }
+
+
+/* 右パネル（チャート） */
+.chart-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    padding: 2vh;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+.chart-title { font-size: 2.2vh; margin-bottom: 1vh; }
+
+#chart-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+.chart-img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+/* --- フッター --- */
+footer {
+    flex: 0 0 auto;
+    padding-top: 2vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding-bottom: 8vh; 
+}
+
+.btn-group {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    gap: 1vw;
+    margin-bottom: 1.5vh;
+}
+
+.move-btn {
+    flex: 1;
+    padding: 1.5vh 0;
+    font-size: 2.2vh;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    color: white;
+    transition: transform 0.1s;
+    max-width: 18vw;
+}
+.move-btn:active { transform: scale(0.95); }
+
+.btn-gu { background-color: #e74c3c; }
+.btn-choki { background-color: #f1c40f; color: #333; }
+.btn-pa { background-color: #2ecc71; }
+.btn-king { background-color: #9b59b6; }
+.btn-slave { background-color: #34495e; }
+
+/* メタ情報エリア */
+.meta-info {
+    margin-top: 1vh;
+    font-size: 2vh;
+    color: #444;
+    display: flex;
+    gap: 1vw;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(255,255,255,0.8);
+    padding: 12px 20px;
+    border-radius: 40px;
+    flex-wrap: wrap;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+/* ★勝率を目立たせるスタイル */
+.win-rate-display {
+    background-color: #f0f0ff; /* 淡い背景色 */
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-weight: bold;
+    color: #4a00e0; /* 濃い紫色 */
+    border: 2px solid #ccc;
+}
+#win-rate {
+    font-size: 3vh; /* フォントサイズを大きく */
+    margin-left: 5px;
+    font-family: monospace; /* 数字を見やすく */
+}
+/* 勝率部分のテキストを小さく */
+.win-rate-display span:first-child {
+    font-size: 1.8vh; 
+    font-weight: normal;
+    display: block;
+    line-height: 1;
+}
+
+
+/* フッター内ボタンの共通スタイル */
+.footer-btn {
+    padding: 1vh 2vh;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 2vh;
+    color: white;
+    font-weight: normal;
+    transition: background-color 0.2s;
+}
+.footer-btn:hover { opacity: 0.9; }
+
+.rule-btn { background-color: #3498db; }
+.story-btn { background-color: #e67e22; }
+.reset-btn { background-color: #7f8c8d; }
+
+
+/* --- ロゴ (円形切り抜き) --- */
+.logo-container {
+    position: fixed;
+    bottom: 15px;
+    right: 15px;
+    z-index: 100;
+    opacity: 0.9;
+    pointer-events: none;
+}
+.logo-img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 50%;
+    display: block;
+    background-color: white;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+/* --- モーダル (ポップアップ) --- */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 200;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.5);
+    align-items: center;
+    justify-content: center;
+}
+.modal.active { display: flex; }
+.modal-content {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 15px;
+    width: 80%;
+    max-width: 600px;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    position: relative;
+}
+.close-btn {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    position: absolute;
+    right: 20px;
+    top: 10px;
+}
+.close-btn:hover { color: #000; }
+
+.modal-h2 { margin-top: 0; color: #2c3e50; border-bottom: 2px solid #eee; padding-bottom: 10px;}
+.rule-list li { margin-bottom: 8px; font-size: 1.8vh; }
+
+/* ★グラフ重なり防止とレスポンシブデザインの修正 */
+@media (max-aspect-ratio: 1/1) {
+    .container {
+        /* スマホ表示時、paddingを微調整 */
+        padding: 1vh 4vw;
+    }
+    .main-content { 
+        flex-direction: column; 
+        /* ★縦長画面でのスペース配分を明確にする */
+        /* メインコンテンツ全体で残りの高さを利用 */
+    }
+    
+    /* ★左パネル (勝敗ステータス) に占有高さを指定 */
+    .status-panel {
+        flex: 0 0 15vh; /* 画面高さの約15%を確保 */
+        margin-bottom: 1vh;
+    }
+    
+    /* ★右パネル (チャート) に残りの高さを与える */
+    .chart-panel {
+        flex: 1; 
+        min-height: 0; /* グラフが縮小可能になる */
+    }
+    
+    /* その他のスマホ向け調整 */
+    .status-text { font-size: 3vh; margin-bottom: 1vh; }
+    .move-emoji { font-size: 5vh; }
+    .logo-img { width: 70px; height: 70px; }
+    footer { padding-bottom: 2vh; } 
+}

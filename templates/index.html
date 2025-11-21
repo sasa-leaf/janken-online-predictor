@@ -12,7 +12,7 @@
     <div class="container">
         <header>
             <h1>👑 5種じゃんけん vs AI</h1>
-            <p class="subtitle">AIはLSTMであなたの癖を学習して強くなります</p>
+            <p class="subtitle">AIはLSTMであなたのパターンを学習します</p>
         </header>
 
         <div class="main-content">
@@ -52,11 +52,11 @@
 
         <footer>
             <div class="btn-group">
-                <button class="move-btn btn-gu" onclick="play(0)">👊<br>グー</button>
-                <button class="move-btn btn-choki" onclick="play(1)">✌️<br>チョキ</button>
-                <button class="move-btn btn-pa" onclick="play(2)">🖐<br>パー</button>
-                <button class="move-btn btn-king" onclick="play(3)">👑<br>王様</button>
-                <button class="move-btn btn-slave" onclick="play(4)">🧑‍🌾<br>農民</button>
+                <button class="move-btn btn-gu" onclick="play(0)">👊<span>グー</span></button>
+                <button class="move-btn btn-choki" onclick="play(1)">✌️<span>チョキ</span></button>
+                <button class="move-btn btn-pa" onclick="play(2)">🖐<span>パー</span></button>
+                <button class="move-btn btn-king" onclick="play(3)">👑<span>王様</span></button>
+                <button class="move-btn btn-commoner" onclick="play(4)">🧑‍🌾<span>農民</span></button>
             </div>
             
             <div class="meta-info">
@@ -70,8 +70,7 @@
                     <span id="game-count">0</span>
                 </span>
                 
-                <button class="footer-btn rule-btn" onclick="openModal('rule-modal')">📖<br>ルール</button>
-                <button class="footer-btn story-btn" onclick="openModal('dev-modal')">🤫<br>ヒント</button>
+                <button class="footer-btn rule-btn" onclick="openModal('rule-modal')">📖<br>説明をよむ</button>
                 <button class="footer-btn reset-btn" onclick="resetGame()">リセット</button>
             </div>
         </footer>
@@ -86,40 +85,34 @@
             <span class="close-btn" onclick="closeModal('rule-modal')">&times;</span>
             <h2 class="modal-h2">📖 5種じゃんけんのルール</h2>
             <ul class="rule-list">
-                <li><b>👑 王様</b> は、グー・チョキ・パーに勝ちますが，<b>🧑‍🌾 農民</b> には負けます。</li>
-                <li><b>🧑‍🌾 農民</b> は、グー・チョキ・パーに負けますが，<b>👑 王様</b> には勝ちます。</li>
+                <li><b>👑 王様</b> は、グー・チョキ・パーに<b>勝ち</b>ますが，<b>🧑‍🌾 農民</b> には<b>負け</b>ます。</li>
+                <li><b>🧑‍🌾 農民</b> は、グー・チョキ・パーに<b>負け</b>ますが，<b>👑 王様</b> には<b>勝ち</b>ます。</li>
                 <li>グー・チョキ・パー同士は通常のルールと同じです。</li>
             </ul>
-        </div>
-    </div>
 
-    <div id="dev-modal" class="modal" onclick="closeModalOutside(event, 'dev-modal')">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closeModal('dev-modal')">&times;</span>
-            <h2 class="modal-h2">🤫 ヒント</h2>
-            <p>AIはあなたの「過去の手のパターン」を記憶し、次に来る手を予測して、それに勝てる手を選んでいます。</p>
-            
             <div style="background-color: #eafaf1; border-left: 5px solid #2ecc71; padding: 15px; margin: 20px 0;">
                 <h3 style="margin-top:0; color:#27ae60;">🧪 体験してみてください</h3>
-                <ul>
-                    <li><b>グー 👊 → チョキ ✌️ → パー 🖐</b> の順番で、同じパターンを何度も繰り返し出してみてください。最初は負けたり勝ったりしますが、何周かすると…？</li>
-                    <li>ランダムに手を出し続けると、AIはなかなか学習できません。</li>
+                <ul class="rule-list">
+                    <li><b>グー 👊 → チョキ ✌️ → パー 🖐</b> の順番を繰り返してみてください。<br>最初は負けたり勝ったりしますが、何周かすると…？</li>
                 </ul>
             </div>
+
         </div>
     </div>
 
     <div id="milestone-modal" class="modal" onclick="closeModalOutside(event, 'milestone-modal')">
-        <div class="modal-content">
+        <div class="modal-content" style="text-align: center;">
             <span class="close-btn" onclick="closeModal('milestone-modal')">&times;</span>
-            <h2 class="modal-h2">🎉 50回プレイ達成！</h2>
-            <p>ここまでの成績はこちら：</p>
-
-            <ul style="font-size:2vh; line-height:1.8;">
-                <li><b>勝率：</b> <span id="milestone-win-rate">-</span>%</li>
-                <li><b>対戦数：</b> <span id="milestone-count">0</span></li>
-            </ul>
-
+            
+            <h2 class="modal-h2">🎉 <span id="milestone-count">0</span>回プレイ達成！</h2>
+            
+            <div class="milestone-display">
+                <p class="milestone-label">現在のあなたの勝率</p>
+                <div class="milestone-value">
+                    <span id="milestone-win-rate">-</span>
+                    <span class="milestone-unit">%</span>
+                </div>
+            </div>
             <button class="footer-btn reset-btn" onclick="resetGame()" style="margin-top:20px;">
                 🔄 リセット
             </button>
